@@ -166,6 +166,16 @@ final class Promise implements PromiseInterface
             $this->canceller = null;
         }
 
+        if ($promise === $this) {
+            $promise = new RejectedPromise(
+                new \LogicException('Cannot resolve a promise with itself.')
+            );
+        }
+
+        if ($promise instanceof self) {
+            $promise->requiredCancelRequests++;
+        }
+
         $handlers = $this->handlers;
 
         $this->handlers = [];
