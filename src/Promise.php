@@ -252,6 +252,56 @@ final class Promise implements PromiseInterface
     }
 
     /**
+     * Creates a static resolver callback that is not bound to a promise instance.
+     *
+     * Moving the closure creation to a static method allows us to create a
+     * callback that is not bound to a promise instance. By passing the target
+     * promise instance by reference, we can still execute its resolving logic
+     * and still clear this reference when settling the promise. This helps
+     * avoiding garbage cycles if any callback creates an Exception.
+     *
+     * These assumptions are covered by the test suite, so if you ever feel like
+     * refactoring this, go ahead, any alternative suggestions are welcome!
+     *
+     * @param Promise $target
+     * @return callable
+     */
+    private static function resolveFunction(self &$target)
+    {
+        return function ($value = null) use (&$target) {
+            if ($target !== null) {
+                $target->settle(resolve($value));
+                $target = null;
+            }
+        };
+    }
+
+    /**
+     * Creates a static rejection callback that is not bound to a promise instance.
+     *
+     * Moving the closure creation to a static method allows us to create a
+     * callback that is not bound to a promise instance. By passing the target
+     * promise instance by reference, we can still execute its rejection logic
+     * and still clear this reference when settling the promise. This helps
+     * avoiding garbage cycles if any callback creates an Exception.
+     *
+     * These assumptions are covered by the test suite, so if you ever feel like
+     * refactoring this, go ahead, any alternative suggestions are welcome!
+     *
+     * @param Promise $target
+     * @return callable
+     */
+    private static function rejectFunction(self &$target)
+    {
+        return function ($reason = null) use (&$target) {
+            if ($target !== null) {
+                $target->reject($reason);
+                $target = null;
+            }
+        };
+    }
+
+    /**
      * Creates a static progress callback that is not bound to a promise instance.
      *
      * Moving the closure creation to a static method allows us to create a
@@ -266,7 +316,7 @@ final class Promise implements PromiseInterface
      * @param array $progressHandlers
      * @return callable
      */
-    private static function notifier(&$progressHandlers)
+    private static function notifyFunction(&$progressHandlers)
     {
         return function ($update = null) use (&$progressHandlers) {
             foreach ($progressHandlers as $handler) {
