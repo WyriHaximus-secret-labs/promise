@@ -174,6 +174,8 @@ final class Promise implements PromiseInterface
 
         if ($promise instanceof self) {
             $promise->requiredCancelRequests++;
+        } else {
+            $this->canceller = null;
         }
 
         $handlers = $this->handlers;
