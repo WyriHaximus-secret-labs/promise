@@ -12,6 +12,7 @@ final class Promise implements PromiseInterface
     private $handlers = [];
 
     private $requiredCancelRequests = 0;
+    private $cancelRequests = 0;
 
     public function __construct(callable $resolver, callable $canceller = null)
     {
@@ -96,37 +97,14 @@ final class Promise implements PromiseInterface
 
     public function cancel(): void
     {
+        if (null === $this->canceller || null !== $this->result) {
+            return;
+        }
+
         $canceller = $this->canceller;
         $this->canceller = null;
 
-        $parentCanceller = null;
-
-        if (null !== $this->result) {
-            // Go up the promise chain and reach the top most promise which is
-            // itself not following another promise
-            $root = $this->unwrap($this->result);
-
-            // Return if the root promise is already resolved or a
-            // FulfilledPromise or RejectedPromise
-            if (!$root instanceof self || null !== $root->result) {
-                return;
-            }
-
-            $root->requiredCancelRequests--;
-
-            if ($root->requiredCancelRequests <= 0) {
-                $parentCanceller = [$root, 'cancel'];
-            }
-        }
-
-        if (null !== $canceller) {
-            $this->call($canceller);
-        }
-
-        // For BC, we call the parent canceller after our own canceller
-        if ($parentCanceller) {
-            $parentCanceller();
-        }
+        $this->call($canceller);
     }
 
     private function resolver(callable $onFulfilled = null, callable $onRejected = null): callable
@@ -170,12 +148,6 @@ final class Promise implements PromiseInterface
             $promise = new RejectedPromise(
                 new \LogicException('Cannot resolve a promise with itself.')
             );
-        }
-
-        if ($promise instanceof self) {
-            $promise->requiredCancelRequests++;
-        } else {
-            $this->canceller = null;
         }
 
         $handlers = $this->handlers;
