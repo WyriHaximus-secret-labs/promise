@@ -57,8 +57,9 @@ Table of Contents
      * [Rejection forwarding](#rejection-forwarding)
      * [Mixed resolution and rejection forwarding](#mixed-resolution-and-rejection-forwarding)
    * [done() vs. then()](#done-vs-then)
-5. [Credits](#credits)
-6. [License](#license)
+5. [Install](#install)
+6. [Credits](#credits)
+7. [License](#license)
 
 Introduction
 ------------
