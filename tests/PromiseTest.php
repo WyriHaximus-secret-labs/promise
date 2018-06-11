@@ -190,7 +190,6 @@ class PromiseTest extends TestCase
         $promise->cancel();
     }
 
-
     /** @test */
     public function shouldNotLeaveGarbageCyclesWhenRemovingLastReferenceToPendingPromise()
     {
