@@ -20,7 +20,6 @@ use React\Promise\Internal\RejectedPromise;
  * @param mixed $promiseOrValue
  * @return PromiseInterface
  */
-
 function resolve($promiseOrValue = null): PromiseInterface
 {
     if ($promiseOrValue instanceof PromiseInterface) {
