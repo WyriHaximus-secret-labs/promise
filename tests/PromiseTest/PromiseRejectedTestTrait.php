@@ -382,6 +382,9 @@ trait PromiseRejectedTestTrait
             ->otherwise(function (InvalidArgumentException $reason) use ($mock) {
                 $mock($reason);
             });
+
+        $ret->then(null, function () { });
+        $adapter->promise()->then(null, function () { });
     }
 
     /** @test */
@@ -507,5 +510,7 @@ trait PromiseRejectedTestTrait
         $adapter->reject(new Exception());
 
         $adapter->promise()->cancel();
+
+        $adapter->promise()->then(null, function () { });
     }
 }

@@ -56,10 +56,11 @@ class FulfilledPromiseTest extends TestCase
     {
         gc_collect_cycles();
         $promise = new FulfilledPromise(1);
-        $promise->always(function () {
+        $ret = $promise->always(function () {
             throw new \RuntimeException();
         });
-        unset($promise);
+        $ret->then(null, function () { });
+        unset($ret, $promise);
 
         $this->assertSame(0, gc_collect_cycles());
     }
@@ -72,6 +73,7 @@ class FulfilledPromiseTest extends TestCase
         $promise = $promise->then(function () {
             throw new \RuntimeException();
         });
+        $promise->then(null, function () { });
         unset($promise);
 
         $this->assertSame(0, gc_collect_cycles());

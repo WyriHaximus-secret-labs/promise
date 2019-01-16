@@ -48,6 +48,8 @@ trait PromiseSettledTestTrait
         $adapter->settle();
 
         $adapter->promise()->cancel();
+
+        $adapter->promise()->then(null, function () { });
     }
 
     /** @test */
